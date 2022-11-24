@@ -41,6 +41,8 @@ async function run() {
     try {
         //document collections
         const userCollection = client.db('PhoneKinunDB').collection('users');
+        const categoryCollection = client.db('PhoneKinunDB').collection('categories');
+        const productCollection = client.db('PhoneKinunDB').collection('products');
 
         //user data save
         app.post('/users', async (req, res) => {
@@ -49,6 +51,13 @@ async function run() {
             res.send(result);
         })
         //
+        app.post('/products', async (req, res) => {
+            const product = req.body;
+            console.log(product);
+            product.postDate = new Date().toDateString();
+            const result = await productCollection.insertOne(product);
+            res.send(result);
+        })
 
     }
     finally {
