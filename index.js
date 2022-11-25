@@ -58,14 +58,14 @@ async function run() {
             const email = req.params.email;
             const query = { email: email };
             const user = await userCollection.findOne(query)
-            res.send({ isAdmin: user?.role === 'seller' })
+            res.send({ isSeller: user?.role === 'seller' })
         })
         //get regular user
         app.get('/users/:email', async (req, res) => {
             const email = req.params.email;
             const query = { email: email };
             const user = await userCollection.findOne(query)
-            res.send({ isAdmin: user?.role === 'buyer' })
+            res.send({ isBuyer: user?.role === 'buyer' })
         })
 
         //user data save
@@ -83,7 +83,6 @@ async function run() {
         //get products api
         app.get('/products', async (req, res) => {
             const email = req.query.email;
-            console.log(email);
             const query = { sellerEmail: email };
             const products = await productCollection.find(query).toArray();
             res.send(products);
