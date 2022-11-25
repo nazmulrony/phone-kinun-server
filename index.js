@@ -80,11 +80,20 @@ async function run() {
             const result = await categoryCollection.find(query).toArray()
             res.send(result);
         })
-        //get products api
+        //get seller specific products api
         app.get('/products', async (req, res) => {
             const email = req.query.email;
             const query = { sellerEmail: email };
             const products = await productCollection.find(query).toArray();
+            res.send(products);
+        })
+        //get category specific products
+        app.get('/category/:id', async (req, res) => {
+            const id = req.params.id;
+            const category = await categoryCollection.findOne({ _id: ObjectId(id) });
+            const query = { category: category.name }
+            const products = await productCollection.find(query).toArray();
+            // console.log(category);
             res.send(products);
         })
 
