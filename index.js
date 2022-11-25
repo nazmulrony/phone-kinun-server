@@ -44,10 +44,40 @@ async function run() {
         const categoryCollection = client.db('PhoneKinunDB').collection('categories');
         const productCollection = client.db('PhoneKinunDB').collection('products');
 
+
+
+        //get admin user
+        app.get('/users/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await userCollection.findOne(query)
+            res.send({ isAdmin: user?.role === 'admin' })
+        })
+        //get seller user
+        app.get('/users/seller/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await userCollection.findOne(query)
+            res.send({ isAdmin: user?.role === 'seller' })
+        })
+        //get regular user
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await userCollection.findOne(query)
+            res.send({ isAdmin: user?.role === 'buyer' })
+        })
+
         //user data save
         app.post('/users', async (req, res) => {
             const user = req.body;
             const result = await userCollection.insertOne(user);
+            res.send(result);
+        })
+        //get categories api
+        app.get('/categories', async (req, res) => {
+            const query = {};
+            const result = await categoryCollection.find(query).toArray()
             res.send(result);
         })
         //get products api
