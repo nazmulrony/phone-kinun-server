@@ -50,10 +50,18 @@ async function run() {
             const result = await userCollection.insertOne(user);
             res.send(result);
         })
-        //
+        //get products api
+        app.get('/products', async (req, res) => {
+            const email = req.query.email;
+            console.log(email);
+            const query = { sellerEmail: email };
+            const products = await productCollection.find(query).toArray();
+            res.send(products);
+        })
+
+        //post products api
         app.post('/products', async (req, res) => {
             const product = req.body;
-            console.log(product);
             product.postDate = new Date().toDateString();
             const result = await productCollection.insertOne(product);
             res.send(result);
