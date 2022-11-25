@@ -91,9 +91,25 @@ async function run() {
         app.get('/category/:id', async (req, res) => {
             const id = req.params.id;
             const category = await categoryCollection.findOne({ _id: ObjectId(id) });
-            const query = { category: category.name }
-            const products = await productCollection.find(query).toArray();
-            // console.log(category);
+            const filter = { category: category.name }
+            const products = await productCollection.find(filter).toArray();//products of that cetegory
+            products.map(async (product) => {
+                const email = product.sellerEmail;
+                const query = { email: email }
+                const seller = await userCollection.findOne(query);
+                const sellerName = seller.name;
+                const sellerVerified = seller?.isVerified;
+                const filter = { _id: ObjectId(product._id) }
+                const options = { upsert: true };
+                const updatedDoc = {
+                    $set: {
+                        sellerName: sellerName,
+                        sellerVerified: sellerVerified,
+                    }
+                }
+                const result = await productCollection.updateOne(filter, updatedDoc, options);
+            })
+            console.log(products);
             res.send(products);
         })
 
