@@ -49,6 +49,7 @@ async function run() {
         const orderCollection = client.db('PhoneKinunDB').collection('orders');
         const wishlistCollection = client.db('PhoneKinunDB').collection('wishlist');
         const paymentCollection = client.db('PhoneKinunDB').collection('payments');
+        const advertiseCollection = client.db('PhoneKinunDB').collection('advertises');
 
 
         //get admin user
@@ -209,6 +210,19 @@ async function run() {
             const updatedProduct = await productCollection.updateOne(query, updateDoc, options)
             const result = await paymentCollection.insertOne(payment);
             res.send(result);
+        })
+
+        //post advertised product API
+        app.post('/advertise', async (req, res) => {
+            const advertiseItem = req.body;
+            // console.log(advertiseItem);
+            const query = { productId: advertiseItem.productId }
+            const existingProduct = await advertiseCollection.findOne(query);
+            if (!existingProduct) {
+                const result = await advertiseCollection.insertOne(advertiseItem)
+                return res.send(result)
+            }
+            res.send({ acknowledged: false })
         })
 
 
