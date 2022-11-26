@@ -129,7 +129,22 @@ async function run() {
             res.send({ acknowledged: false })
         })
 
-        //
+        //get order by userEmails
+        app.get('/orders/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { userEmail: email };
+            const orders = await orderCollection.find(query).toArray();
+            res.send(orders);
+
+        })
+
+        //get product by id
+        app.get('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const product = await productCollection.findOne(query);
+            res.send(product)
+        })
 
     }
     finally {
