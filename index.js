@@ -44,6 +44,7 @@ async function run() {
         const categoryCollection = client.db('PhoneKinunDB').collection('categories');
         const productCollection = client.db('PhoneKinunDB').collection('products');
         const orderCollection = client.db('PhoneKinunDB').collection('orders');
+        const wishlistCollection = client.db('PhoneKinunDB').collection('wishlist');
 
 
         //get admin user
@@ -116,7 +117,6 @@ async function run() {
         //add a order api
         app.post('/products/add', async (req, res) => {
             const order = req.body;
-            console.log(order);
             const query = {
                 productId: order.productId,
                 userEmail: order.userEmail
@@ -128,14 +128,34 @@ async function run() {
             }
             res.send({ acknowledged: false })
         })
-
+        //add to wishlist api
+        app.post('/wishlist/add', async (req, res) => {
+            const wishlist = req.body;
+            console.log(wishlist);
+            const query = {
+                productId: wishlist.productId,
+                userEmail: wishlist.userEmail
+            }
+            const existingProduct = await wishlistCollection.findOne(query);
+            if (!existingProduct) {
+                const result = await wishlistCollection.insertOne(wishlist);
+                return res.send(result)
+            }
+            res.send({ acknowledged: false })
+        })
         //get order by userEmails
         app.get('/orders/:email', async (req, res) => {
             const email = req.params.email;
             const query = { userEmail: email };
             const orders = await orderCollection.find(query).toArray();
             res.send(orders);
-
+        })
+        // get wishlist by userEmails
+        app.get('/wishlist/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { userEmail: email };
+            const wishlist = await wishlistCollection.find(query).toArray();
+            res.send(wishlist);
         })
 
         //get product by id
@@ -143,8 +163,10 @@ async function run() {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const product = await productCollection.findOne(query);
-            res.send(product)
+            res.send(product);
         })
+        //delete product by id
+        // app.delete('/products/:id', async(req, res)=>)
 
     }
     finally {
