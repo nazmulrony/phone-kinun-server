@@ -2,6 +2,9 @@ const express = require('express');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 require('dotenv').config()
+
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
 // const jwt = require('jsonwebtoken');
 const app = express();
 // const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
@@ -45,6 +48,7 @@ async function run() {
         const productCollection = client.db('PhoneKinunDB').collection('products');
         const orderCollection = client.db('PhoneKinunDB').collection('orders');
         const wishlistCollection = client.db('PhoneKinunDB').collection('wishlist');
+        const paymentCollection = client.db('PhoneKinunDB').collection('payments');
 
 
         //get admin user
@@ -131,7 +135,7 @@ async function run() {
         //add to wishlist api
         app.post('/wishlist/add', async (req, res) => {
             const wishlist = req.body;
-            console.log(wishlist);
+            // console.log(wishlist);
             const query = {
                 productId: wishlist.productId,
                 userEmail: wishlist.userEmail
@@ -172,6 +176,41 @@ async function run() {
             const result = await productCollection.deleteOne(filter);
             res.send(result);
         })
+
+        //stripe post api
+        app.post("/create-payment-intent", async (req, res) => {
+            const product = req.body;
+            const price = product.sellingPrice;
+            // console.log(price);
+            const amount = (price) * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                currency: 'usd',
+                amount: amount,
+                payment_method_types: [
+                    "card"
+                ],
+            })
+            res.send({
+                clientSecret: paymentIntent.client_secret,
+            });
+        })
+
+        //store payment to DB
+        app.post('/payments', async (req, res) => {
+            const payment = req.body;
+            const id = payment.productId;
+            const query = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    isSold: true
+                }
+            }
+            const updatedProduct = await productCollection.updateOne(query, updateDoc, options)
+            const result = await paymentCollection.insertOne(payment);
+            res.send(result);
+        })
+
 
     }
     finally {
