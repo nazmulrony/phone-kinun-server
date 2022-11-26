@@ -166,7 +166,12 @@ async function run() {
             res.send(product);
         })
         //delete product by id
-        // app.delete('/products/:id', async(req, res)=>)
+        app.delete('/products/delete/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const result = await productCollection.deleteOne(filter);
+            res.send(result);
+        })
 
     }
     finally {
