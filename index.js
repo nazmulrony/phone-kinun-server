@@ -217,6 +217,11 @@ async function run() {
             const advertiseItem = req.body;
             // console.log(advertiseItem);
             const query = { productId: advertiseItem.productId }
+            const filter = { _id: ObjectId(advertiseItem.productId) }
+            const product = await productCollection.findOne(filter);
+            if (product.isSold) {
+                return res.send({ acknowledged: 'sold' });
+            }
             const existingProduct = await advertiseCollection.findOne(query);
             if (!existingProduct) {
                 const result = await advertiseCollection.insertOne(advertiseItem)
