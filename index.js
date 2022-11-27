@@ -235,7 +235,13 @@ async function run() {
             const advertises = await advertiseCollection.find(query).toArray();
             res.send(advertises);
         })
-
+        //get all buyers 
+        app.get('/users', async (req, res) => {
+            const role = req.query.role;
+            const query = { role: role }
+            const users = await userCollection.find(query).toArray();
+            res.send(users)
+        })
 
     }
     finally {
