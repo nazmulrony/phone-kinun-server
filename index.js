@@ -1,6 +1,7 @@
 const express = require('express');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
+const { query } = require('express');
 require('dotenv').config()
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
@@ -242,7 +243,26 @@ async function run() {
             const users = await userCollection.find(query).toArray();
             res.send(users)
         })
-
+        //delete user by id api
+        app.delete('/users/delete/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const result = await userCollection.deleteOne(filter);
+            res.send(result);
+        })
+        //update seller verification 
+        app.put('/users/verify/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    isVerified: true
+                }
+            }
+            const result = await userCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        })
     }
     finally {
 
