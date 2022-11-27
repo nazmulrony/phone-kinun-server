@@ -78,8 +78,14 @@ async function run() {
         //user data save
         app.post('/users', async (req, res) => {
             const user = req.body;
-            const result = await userCollection.insertOne(user);
-            res.send(result);
+            const query = { email: user.email }
+            console.log(user);
+            const existingUser = await userCollection.findOne(query);
+            if (!existingUser) {
+                const result = await userCollection.insertOne(user);
+                return res.send(result);
+            }
+            res.send({ message: 'user exist' })
         })
         //get categories api
         app.get('/categories', async (req, res) => {
