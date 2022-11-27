@@ -250,7 +250,7 @@ async function run() {
             res.send({ acknowledged: false })
         })
         //get advertised products
-        app.get('/advertise', async (req, res) => {
+        app.get('/advertise', verifyJWT, async (req, res) => {
             const query = {};
             const advertises = await advertiseCollection.find(query).toArray();
             res.send(advertises);
@@ -280,6 +280,12 @@ async function run() {
                 }
             }
             const result = await userCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        })
+        //all products api
+        app.get('/all-products', async (req, res) => {
+            const query = {};
+            const result = await productCollection.find(query).toArray();
             res.send(result);
         })
     }
