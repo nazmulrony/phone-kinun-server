@@ -229,6 +229,12 @@ async function run() {
             }
             res.send({ acknowledged: false })
         })
+        //get advertised products
+        app.get('/advertise', async (req, res) => {
+            const query = {};
+            const advertises = await advertiseCollection.find(query).toArray();
+            res.send(advertises);
+        })
 
 
     }
